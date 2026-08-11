@@ -3,6 +3,7 @@ from flask_cors import CORS
 
 from config import Config
 from extensions import db
+from models import Task  # noqa: F401
 from routes import tasks_bp
 
 
