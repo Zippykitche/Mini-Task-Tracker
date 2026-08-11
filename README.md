@@ -1,35 +1,165 @@
 # Mini Task Tracker
 
-Separate React and Flask applications for a small task tracker assignment.
+A full-stack, responsive web application for managing tasks with real-time status tracking, filtering, search, and full CRUD operations.
 
-## Frontend
+---
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+## Live Deployments
 
-Create `frontend/.env` from `frontend/.env.example` and set:
+- 🌐 **Frontend Application (Vercel)**: [https://mini-task-tracker-nu.vercel.app/](https://mini-task-tracker-nu.vercel.app/)
+- ⚙️ **Backend API (Render)**: [https://mini-task-tracker-wiis.onrender.com](https://mini-task-tracker-wiis.onrender.com)
 
-```bash
-VITE_API_BASE_URL=http://localhost:5000
-```
+---
 
-## Backend
+## Table of Contents
 
-```bash
-cd backend
-pip install -r requirements.txt
-flask --app app init-db
-flask --app app run
-```
+- [Live Deployments](#live-deployments)
+- [What Was Built](#what-was-built)
+- [Tech Stack & Rationale](#tech-stack--rationale)
+- [How to Run (Setup & Commands)](#how-to-run-setup--commands)
+  - [Prerequisites](#prerequisites)
+  - [1. Running the Backend (Flask API)](#1-running-the-backend-flask-api)
+  - [2. Running the Frontend (React + Vite)](#2-running-the-frontend-react--vite)
+- [API Endpoints](#api-endpoints)
+- [Assumptions & Shortcuts](#assumptions--shortcuts)
 
-Optional backend environment variables:
+---
 
-```bash
-DATABASE_URL=sqlite:///tasks.db
-CORS_ORIGINS=http://localhost:5173,https://your-vercel-app.vercel.app
-```
+## What Was Built
 
-For Render, use `gunicorn app:app` as the start command and run `flask --app app init-db` before first use.
+The **Mini Task Tracker** is a full-stack task management application featuring:
+
+- **Task Creation**: Create tasks with mandatory **Title**, mandatory **Description**, and initial **Status** (`To Do`, `In Progress`, `Done`).
+- **Dashboard & Metrics**:
+  - Live status counts for **All**, **To Do**, **In Progress**, and **Done** tasks.
+  - Interactive status filter tabs.
+  - Real-time search filter across titles and descriptions.
+- **Task Updating**:
+  - **Quick Status Switcher**: Update task status directly from the card with 1-click.
+  - **Edit Details Modal**: Full popup modal to edit title, description, or status.
+- **Task Deletion**: Delete tasks with an interactive confirmation prompt.
+- **Resilient Offline-First Fallback**: Fully integrated with the RESTful Flask API, with automatic fallback to browser `localStorage` if offline or if backend is unreachable.
+
+---
+
+## Tech Stack & Rationale
+
+### Frontend
+- **React 19**: Component-based UI library for fast, declarative UI rendering and state management.
+- **Vite 6**: Modern build tool providing instant Hot Module Replacement (HMR) and fast build bundling.
+- **Tailwind CSS 3**: Utility-first CSS framework for clean, responsive design across desktop and mobile layout viewports.
+- **Axios**: Promise-based HTTP client for simple request/response handling, timeout control, and error management.
+- **React Router 7**: Client-side routing between Task List (`/`) and Task Creation (`/tasks/new`).
+
+### Backend
+- **Python 3.8+ / Flask 3.0**: Lightweight Python WSGI web framework for building RESTful APIs.
+- **Flask-SQLAlchemy 3.1**: Object-Relational Mapping (ORM) for database schema definitions and query abstractions.
+- **Flask-CORS 4.0**: Cross-Origin Resource Sharing middleware for seamless frontend-backend communication.
+- **SQLite**: Zero-configuration relational database engine for local persistence.
+
+---
+
+## How to Run (Setup & Commands)
+
+Follow these step-by-step instructions to run the application locally on any machine.
+
+### Prerequisites
+Make sure you have the following installed on your machine:
+- **Node.js** (v18.0.0 or higher) & **npm**
+- **Python** (v3.8 or higher) & **pip**
+
+---
+
+### 1. Running the Backend (Flask API)
+
+1. Open a terminal and navigate to the `backend` directory:
+   ```bash
+   cd backend
+   ```
+
+2. Create a Python virtual environment:
+   ```bash
+   python3 -m venv venv
+   ```
+
+3. Activate the virtual environment:
+   - **Linux / macOS**:
+     ```bash
+     source venv/bin/activate
+     ```
+   - **Windows (Command Prompt / PowerShell)**:
+     ```cmd
+     venv\Scripts\activate
+     ```
+
+4. Install the required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. Initialize the database tables:
+   ```bash
+   flask init-db
+   ```
+
+6. Start the Flask backend server:
+   ```bash
+   python3 app.py
+   ```
+   The backend server will run at **`http://localhost:5000`**. You can verify it by opening `http://localhost:5000/api` in your browser.
+
+---
+
+### 2. Running the Frontend (React + Vite)
+
+1. Open a **new terminal window** and navigate to the `frontend` directory:
+   ```bash
+   cd frontend
+   ```
+
+2. Install Node dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file (or copy from `.env.example`):
+   ```bash
+   cp .env.example .env
+   ```
+   To connect to your local backend, set:
+   ```env
+   VITE_API_BASE_URL=http://localhost:5000/api
+   ```
+   *(To test against the live production backend on Render, set: `VITE_API_BASE_URL=https://mini-task-tracker-wiis.onrender.com/api`)*
+
+4. Start the frontend development server:
+   ```bash
+   npm run dev
+   ```
+   Open the local URL displayed in the terminal (typically **`http://localhost:5173`**) in your web browser.
+
+---
+
+## API Endpoints
+
+| Method | Endpoint | Description | Request Body Example |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/tasks` | Get all tasks ordered by creation date | N/A |
+| `POST` | `/api/tasks` | Create a new task | `{"title": "New Task", "description": "Details", "status": "To Do"}` |
+| `PUT` | `/api/tasks/<id>` | Update task title, description, or status | `{"status": "In Progress"}` |
+| `DELETE` | `/api/tasks/<id>` | Delete a task | N/A |
+| `GET` | `/api` | Server healthcheck | N/A |
+
+---
+
+## Assumptions & Shortcuts
+
+1. **Validation Requirements**:
+   - Both **Title** and **Description** are mandatory fields. Creating or updating a task without either will trigger validation feedback on the UI and HTTP 400 validation errors on the backend API.
+   - Status values are strictly constrained to `"To Do"`, `"In Progress"`, and `"Done"`.
+
+2. **Offline-First Resilience**:
+   - If the backend server is stopped or unreachable, the frontend automatically falls back to browser `localStorage` to ensure zero runtime UI crashes during evaluation.
+
+3. **Single-User Scope**:
+   - Designed as a clean single-user task management application without multi-user authentication for streamlined assessment.
