@@ -90,27 +90,20 @@ function TaskListPage() {
   const safeTasks = useMemo(() => (Array.isArray(tasks) ? tasks : []), [tasks]);
 
   const handleStatusChange = async (id, newStatus) => {
-    // Optimistic update
-    setTasks((prev) => {
-      const list = Array.isArray(prev) ? prev : [];
-      return list.map((task) => (String(task.id) === String(id) ? { ...task, status: newStatus } : task));
-    });
     try {
       await updateTask(id, { status: newStatus });
+      await fetchTasks();
     } catch (err) {
       console.error('Failed to update status:', err);
-      fetchTasks();
+      await fetchTasks();
     }
   };
 
   const handleUpdateTask = async (id, updatedData) => {
     setIsSaving(true);
     try {
-      const updated = await updateTask(id, updatedData);
-      setTasks((prev) => {
-        const list = Array.isArray(prev) ? prev : [];
-        return list.map((task) => (String(task.id) === String(id) ? { ...task, ...updated } : task));
-      });
+      await updateTask(id, updatedData);
+      await fetchTasks();
       setEditingTask(null);
     } catch (err) {
       console.error('Failed to update task:', err);
@@ -122,15 +115,12 @@ function TaskListPage() {
 
   const handleDeleteTask = async (id) => {
     if (!window.confirm('Are you sure you want to delete this task?')) return;
-    setTasks((prev) => {
-      const list = Array.isArray(prev) ? prev : [];
-      return list.filter((task) => String(task.id) !== String(id));
-    });
     try {
       await deleteTask(id);
+      await fetchTasks();
     } catch (err) {
       console.error('Failed to delete task:', err);
-      fetchTasks();
+      await fetchTasks();
     }
   };
 
