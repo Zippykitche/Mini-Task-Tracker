@@ -21,7 +21,7 @@ function Navbar() {
             Tasks
           </NavLink>
           <NavLink to="/tasks/new" className={linkClass}>
-            Create
+            Create Task
           </NavLink>
         </div>
       </nav>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import TaskForm from '../components/TaskForm.jsx';
 import { createTask } from '../services/taskService.js';
@@ -25,7 +25,6 @@ function CreateTaskPage() {
     <Layout>
       <div className="mx-auto max-w-2xl">
         <div className="mb-6">
-          <p className="text-sm font-medium text-slate-500 font-sans">New task</p>
           <h1 className="mt-1 text-2xl font-semibold text-slate-950 sm:text-3xl">Create Task</h1>
           <p className="mt-2 text-sm leading-6 text-slate-600">
             Fill in the details below to add a new task to your task tracker.
