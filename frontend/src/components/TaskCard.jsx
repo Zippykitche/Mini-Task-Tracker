@@ -1,4 +1,5 @@
-import StatusBadge, { STATUS_OPTIONS, normalizeStatus } from './StatusBadge.jsx';
+import { STATUS_OPTIONS, normalizeStatus } from '../utils/statusOptions.js';
+import StatusBadge from './StatusBadge.jsx';
 
 function TaskCard({ task, onStatusChange, onEdit, onDelete }) {
   const currentStatus = normalizeStatus(task.status);

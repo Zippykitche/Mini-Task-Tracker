@@ -1,9 +1,8 @@
 import axios from 'axios';
 
-// Shared Axios client for backend HTTP requests.
-// Business-specific API calls should be added in taskService.js.
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+  timeout: 5000,
 });
 
 export default apiClient;

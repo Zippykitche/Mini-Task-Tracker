@@ -1,15 +1,14 @@
 import apiClient from './apiClient.js';
-
-const STATUS_TO_API = {
-  todo: 'To Do',
-  in_progress: 'In Progress',
-  done: 'Done',
-};
+import { toApiStatus } from '../utils/statusOptions.js';
 
 function prepareTaskPayload(taskData) {
+  if (!taskData || !Object.hasOwn(taskData, 'status')) {
+    return taskData;
+  }
+
   return {
     ...taskData,
-    status: STATUS_TO_API[taskData.status] || taskData.status,
+    status: toApiStatus(taskData.status),
   };
 }
 

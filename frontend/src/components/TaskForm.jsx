@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { STATUS_OPTIONS, normalizeStatus } from './StatusBadge.jsx';
+import { STATUS_OPTIONS, normalizeStatus } from '../utils/statusOptions.js';
+import { validateTaskTitle } from '../utils/validators.js';
 
 function TaskForm({
   initialValues = { title: '', description: '', status: 'todo' },
@@ -15,8 +16,10 @@ function TaskForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title.trim()) {
-      setError('Task title is required.');
+    const titleError = validateTaskTitle(title);
+
+    if (titleError) {
+      setError(titleError);
       return;
     }
     setError('');

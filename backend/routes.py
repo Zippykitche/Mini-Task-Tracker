@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from sqlalchemy.exc import SQLAlchemyError
 
 from extensions import db
 from models import TASK_STATUSES, TASK_STATUS_TO_DO, Task
@@ -22,7 +23,19 @@ def get_json_body():
     data = request.get_json(silent=True)
     if data is None:
         return {}
+    if not isinstance(data, dict):
+        return None
     return data
+
+
+def commit_changes():
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"error": "Database operation failed."}), 500
+
+    return None
 
 
 def validate_title(data, required=False):
@@ -53,14 +66,20 @@ def validate_status(data):
 
 
 @tasks_bp.get("")
+@tasks_bp.get("/")
 def get_tasks():
     tasks = Task.query.order_by(Task.created_at.desc()).all()
     return jsonify([serialize_task(task) for task in tasks]), 200
 
 
 @tasks_bp.post("")
+@tasks_bp.post("/")
 def create_task():
     data = get_json_body()
+
+    if data is None:
+        return jsonify({"error": "Request body must be a JSON object."}), 400
+
     title, title_error = validate_title(data, required=True)
     status, status_error = validate_status(data)
 
@@ -77,19 +96,26 @@ def create_task():
     )
 
     db.session.add(task)
-    db.session.commit()
+    error_response = commit_changes()
+
+    if error_response:
+        return error_response
 
     return jsonify(serialize_task(task)), 201
 
 
 @tasks_bp.put("/<int:task_id>")
 def update_task(task_id):
-    task = Task.query.get(task_id)
+    task = db.session.get(Task, task_id)
 
     if task is None:
         return jsonify({"error": "Task not found."}), 404
 
     data = get_json_body()
+
+    if data is None:
+        return jsonify({"error": "Request body must be a JSON object."}), 400
+
     title, title_error = validate_title(data)
     status, status_error = validate_status(data)
 
@@ -108,19 +134,25 @@ def update_task(task_id):
     if "status" in data:
         task.status = status
 
-    db.session.commit()
+    error_response = commit_changes()
+
+    if error_response:
+        return error_response
 
     return jsonify(serialize_task(task)), 200
 
 
 @tasks_bp.delete("/<int:task_id>")
 def delete_task(task_id):
-    task = Task.query.get(task_id)
+    task = db.session.get(Task, task_id)
 
     if task is None:
         return jsonify({"error": "Task not found."}), 404
 
     db.session.delete(task)
-    db.session.commit()
+    error_response = commit_changes()
+
+    if error_response:
+        return error_response
 
     return jsonify({"message": "Task deleted successfully."}), 200

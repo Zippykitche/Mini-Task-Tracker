@@ -1,9 +1,9 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Layout from '../components/Layout.jsx';
 import TaskList from '../components/TaskList.jsx';
 import TaskEditModal from '../components/TaskEditModal.jsx';
-import { STATUS_OPTIONS, normalizeStatus } from '../components/StatusBadge.jsx';
-import { getTasks, updateTask, deleteTask } from '../services/taskService.js';
+import useTasks from '../hooks/useTasks.js';
+import { STATUS_OPTIONS, normalizeStatus } from '../utils/statusOptions.js';
 
 function LoadingState() {
   return (
@@ -40,12 +40,12 @@ function EmptyState({ filterStatus, searchQuery }) {
   );
 }
 
-function ErrorState({ onRetry }) {
+function ErrorState({ message = 'Check your network connection and try again.', onRetry }) {
   return (
     <section className="rounded-lg border border-rose-200 bg-rose-50 p-4 flex items-center justify-between">
       <div>
         <h2 className="text-sm font-semibold text-rose-800">Unable to load tasks</h2>
-        <p className="mt-1 text-sm text-rose-700">Check your network connection and try again.</p>
+        <p className="mt-1 text-sm text-rose-700">{message}</p>
       </div>
       <button
         onClick={onRetry}
@@ -58,69 +58,46 @@ function ErrorState({ onRetry }) {
 }
 
 function TaskListPage() {
-  const [tasks, setTasks] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const {
+    tasks,
+    isLoading,
+    errorMessage,
+    isSaving,
+    fetchTasks,
+    updateTask,
+    deleteTask,
+    clearError,
+  } = useTasks();
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-
-  // Editing modal state
   const [editingTask, setEditingTask] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const fetchTasks = async () => {
-    setIsLoading(true);
-    setError(false);
-    try {
-      const data = await getTasks();
-      setTasks(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error('Error fetching tasks:', err);
-      setError(true);
-      setTasks([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTasks();
-  }, []);
 
   const safeTasks = useMemo(() => (Array.isArray(tasks) ? tasks : []), [tasks]);
 
   const handleStatusChange = async (id, newStatus) => {
     try {
       await updateTask(id, { status: newStatus });
-      await fetchTasks();
-    } catch (err) {
-      console.error('Failed to update status:', err);
-      await fetchTasks();
+    } catch {
+      // The hook stores the error message and refreshes the list.
     }
   };
 
   const handleUpdateTask = async (id, updatedData) => {
-    setIsSaving(true);
     try {
       await updateTask(id, updatedData);
-      await fetchTasks();
       setEditingTask(null);
-    } catch (err) {
-      console.error('Failed to update task:', err);
-      alert('Failed to save changes. Please try again.');
-    } finally {
-      setIsSaving(false);
+    } catch {
+      // Keep the modal open so the user can retry.
     }
   };
 
   const handleDeleteTask = async (id) => {
     if (!window.confirm('Are you sure you want to delete this task?')) return;
+
     try {
       await deleteTask(id);
-      await fetchTasks();
-    } catch (err) {
-      console.error('Failed to delete task:', err);
-      await fetchTasks();
+    } catch {
+      // The hook stores the error message and refreshes the list.
     }
   };
 
@@ -214,12 +191,23 @@ function TaskListPage() {
         </div>
       </div>
 
+      {!isLoading && errorMessage && (
+        <div className="mb-6">
+          <ErrorState
+            message={errorMessage}
+            onRetry={() => {
+              clearError();
+              fetchTasks();
+            }}
+          />
+        </div>
+      )}
+
       {isLoading && <LoadingState />}
-      {!isLoading && error && <ErrorState onRetry={fetchTasks} />}
-      {!isLoading && !error && filteredTasks.length === 0 && (
+      {!isLoading && !errorMessage && filteredTasks.length === 0 && (
         <EmptyState filterStatus={filterStatus} searchQuery={searchQuery} />
       )}
-      {!isLoading && !error && filteredTasks.length > 0 && (
+      {!isLoading && filteredTasks.length > 0 && (
         <TaskList
           tasks={filteredTasks}
           onStatusChange={handleStatusChange}

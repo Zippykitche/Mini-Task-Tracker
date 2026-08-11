@@ -1,2 +1,7 @@
-// Placeholder for frontend validation helpers.
-// This file can later include title-required validation before API submission.
+export function validateTaskTitle(title) {
+  if (!String(title || '').trim()) {
+    return 'Task title is required.';
+  }
+
+  return '';
+}

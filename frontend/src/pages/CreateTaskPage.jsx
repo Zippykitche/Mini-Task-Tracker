@@ -7,15 +7,18 @@ import { createTask } from '../services/taskService.js';
 function CreateTaskPage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleCreateTask = async (taskData) => {
     setIsSubmitting(true);
+    setErrorMessage('');
+
     try {
       await createTask(taskData);
       navigate('/');
-    } catch (err) {
-      console.error('Failed to create task:', err);
-      alert('Failed to create task. Please try again.');
+    } catch (error) {
+      console.error('Failed to create task:', error);
+      setErrorMessage(error?.response?.data?.error || 'Failed to create task. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -30,6 +33,13 @@ function CreateTaskPage() {
             Fill in the details below to add a new task to your task tracker.
           </p>
         </div>
+
+        {errorMessage && (
+          <div className="mb-6 rounded-lg border border-rose-200 bg-rose-50 p-4">
+            <h2 className="text-sm font-semibold text-rose-800">Unable to create task</h2>
+            <p className="mt-1 text-sm text-rose-700">{errorMessage}</p>
+          </div>
+        )}
 
         <TaskForm
           onSubmit={handleCreateTask}
