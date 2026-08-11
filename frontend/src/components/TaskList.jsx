@@ -1,7 +1,13 @@
-function TaskList() {
-  // Placeholder for rendering the collection of tasks.
-  // This component will map task data into TaskItem components.
-  return <section className="rounded-lg border border-dashed border-slate-300 p-4">Task list placeholder</section>;
+import TaskCard from './TaskCard.jsx';
+
+function TaskList({ tasks = [] }) {
+  return (
+    <div className="grid gap-4">
+      {tasks.map((task) => (
+        <TaskCard key={task.id} task={task} />
+      ))}
+    </div>
+  );
 }
 
 export default TaskList;
