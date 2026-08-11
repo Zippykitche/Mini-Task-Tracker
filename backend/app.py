@@ -14,7 +14,7 @@ def create_app():
     CORS(app)
     db.init_app(app)
 
-    app.register_blueprint(tasks_bp, url_prefix="/api/tasks")
+    app.register_blueprint(tasks_bp, url_prefix="/tasks")
 
     with app.app_context():
         db.create_all()
