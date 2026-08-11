@@ -52,6 +52,20 @@ def validate_title(data, required=False):
     return title, None
 
 
+def validate_description(data, required=False):
+    description = data.get("description")
+
+    if required and description is None:
+        return None, "Description is required."
+
+    if description is not None:
+        description = str(description).strip()
+        if not description:
+            return None, "Description is required."
+
+    return description, None
+
+
 def validate_status(data):
     status = data.get("status")
 
@@ -81,17 +95,21 @@ def create_task():
         return jsonify({"error": "Request body must be a JSON object."}), 400
 
     title, title_error = validate_title(data, required=True)
+    description, description_error = validate_description(data, required=True)
     status, status_error = validate_status(data)
 
     if title_error:
         return jsonify({"error": title_error}), 400
+
+    if description_error:
+        return jsonify({"error": description_error}), 400
 
     if status_error:
         return jsonify({"error": status_error}), 400
 
     task = Task(
         title=title,
-        description=data.get("description"),
+        description=description,
         status=status or TASK_STATUS_TO_DO,
     )
 
@@ -117,10 +135,14 @@ def update_task(task_id):
         return jsonify({"error": "Request body must be a JSON object."}), 400
 
     title, title_error = validate_title(data)
+    description, description_error = validate_description(data)
     status, status_error = validate_status(data)
 
     if title_error:
         return jsonify({"error": title_error}), 400
+
+    if description_error:
+        return jsonify({"error": description_error}), 400
 
     if status_error:
         return jsonify({"error": status_error}), 400
@@ -129,7 +151,7 @@ def update_task(task_id):
         task.title = title
 
     if "description" in data:
-        task.description = data.get("description")
+        task.description = description
 
     if "status" in data:
         task.status = status

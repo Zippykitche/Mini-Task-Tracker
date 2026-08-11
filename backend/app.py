@@ -12,7 +12,8 @@ def create_app():
     app.config.from_object(Config)
     app.url_map.strict_slashes = False
 
-    CORS(app, origins=app.config["CORS_ORIGINS"])
+    # Enable CORS for all routes and origins
+    CORS(app, resources={r"/*": {"origins": app.config["CORS_ORIGINS"]}})
     db.init_app(app)
 
     app.register_blueprint(tasks_bp, url_prefix="/tasks")

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { STATUS_OPTIONS, normalizeStatus } from '../utils/statusOptions.js';
-import { validateTaskTitle } from '../utils/validators.js';
+import { validateTaskTitle, validateTaskDescription } from '../utils/validators.js';
 
 function TaskForm({
   initialValues = { title: '', description: '', status: 'todo' },
@@ -17,11 +17,17 @@ function TaskForm({
   const handleSubmit = (e) => {
     e.preventDefault();
     const titleError = validateTaskTitle(title);
-
     if (titleError) {
       setError(titleError);
       return;
     }
+
+    const descriptionError = validateTaskDescription(description);
+    if (descriptionError) {
+      setError(descriptionError);
+      return;
+    }
+
     setError('');
     if (onSubmit) {
       onSubmit({ title: title.trim(), description: description.trim(), status });
@@ -57,15 +63,18 @@ function TaskForm({
 
         <div>
           <label htmlFor="description" className="block text-sm font-medium text-slate-800">
-            Description
+            Description <span className="text-rose-500">*</span>
           </label>
           <textarea
             id="description"
             name="description"
             rows="4"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Add a short task description"
+            onChange={(e) => {
+              setDescription(e.target.value);
+              if (error) setError('');
+            }}
+            placeholder="Add a detailed task description (required)"
             className="mt-2 w-full resize-none rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-slate-950 focus:ring-2 focus:ring-slate-950/10"
           />
         </div>
