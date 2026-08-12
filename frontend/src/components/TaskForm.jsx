@@ -63,7 +63,7 @@ function TaskForm({
 
         <div>
           <label htmlFor="description" className="block text-sm font-medium text-slate-800">
-            Description <span className="text-rose-500">*</span>
+            Description <span className="font-normal text-slate-400">(optional)</span>
           </label>
           <textarea
             id="description"
@@ -74,7 +74,7 @@ function TaskForm({
               setDescription(e.target.value);
               if (error) setError('');
             }}
-            placeholder="Add a detailed task description (required)"
+            placeholder="Add a task description (optional)"
             className="mt-2 w-full resize-none rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-slate-950 focus:ring-2 focus:ring-slate-950/10"
           />
         </div>

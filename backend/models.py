@@ -25,7 +25,7 @@ class Task(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150), nullable=False)
-    description = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=True, default="")
     status = db.Column(db.String(20), nullable=False, default=TASK_STATUS_TO_DO)
     created_at = db.Column(
         db.DateTime(timezone=True),

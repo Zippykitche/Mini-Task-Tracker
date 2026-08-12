@@ -6,8 +6,11 @@ A full-stack, responsive web application for managing tasks with real-time statu
 
 ## Live Deployments
 
-- 🌐 **Frontend Application (Vercel)**: [https://mini-task-tracker-nu.vercel.app/](https://mini-task-tracker-nu.vercel.app/)
-- ⚙️ **Backend API (Render)**: [https://mini-task-tracker-wiis.onrender.com](https://mini-task-tracker-wiis.onrender.com)
+- 🌐 **Frontend Application (Vercel):** https://mini-task-tracker-nu.vercel.app/
+- ⚙️ **Backend API (Render):** https://mini-task-tracker-wiis.onrender.com/
+
+
+> **Note:** The backend is hosted on Render's free tier. The first request may take 30–60 seconds if the service is inactive. Subsequent requests are much faster.
 
 ---
 
@@ -15,6 +18,7 @@ A full-stack, responsive web application for managing tasks with real-time statu
 
 - [Live Deployments](#live-deployments)
 - [What Was Built](#what-was-built)
+- [Project Structure](#project-structure)
 - [Tech Stack & Rationale](#tech-stack--rationale)
 - [How to Run (Setup & Commands)](#how-to-run-setup--commands)
   - [Prerequisites](#prerequisites)
@@ -29,16 +33,29 @@ A full-stack, responsive web application for managing tasks with real-time statu
 
 The **Mini Task Tracker** is a full-stack task management application featuring:
 
-- **Task Creation**: Create tasks with mandatory **Title**, mandatory **Description**, and initial **Status** (`To Do`, `In Progress`, `Done`).
+- **Task Creation**: Create tasks with mandatory **Title**, optional **Description**, and initial **Status** (`To Do`, `In Progress`, `Done`).
 - **Dashboard & Metrics**:
   - Live status counts for **All**, **To Do**, **In Progress**, and **Done** tasks.
   - Interactive status filter tabs.
   - Real-time search filter across titles and descriptions.
-- **Task Updating**:
+- **Task Editing & Status Updates**:
   - **Quick Status Switcher**: Update task status directly from the card with 1-click.
   - **Edit Details Modal**: Full popup modal to edit title, description, or status.
 - **Task Deletion**: Delete tasks with an interactive confirmation prompt.
-- **Resilient Offline-First Fallback**: Fully integrated with the RESTful Flask API, with automatic fallback to browser `localStorage` if offline or if backend is unreachable.
+
+
+This project implements all the required assignment features, including full CRUD functionality, client-server communication over HTTP, input validation, and persistent data storage using SQLite.
+---
+
+## Project Structure
+
+```text
+Mini-Task-Tracker/
+├── frontend/
+├── backend/
+├── .gitignore
+└── README.md
+```
 
 ---
 
@@ -122,10 +139,7 @@ Make sure you have the following installed on your machine:
    npm install
    ```
 
-3. Create a `.env` file (or copy from `.env.example`):
-   ```bash
-   cp .env.example .env
-   ```
+3. Create a `.env` file:
    To connect to your local backend, set:
    ```env
    VITE_API_BASE_URL=http://localhost:5000/api
@@ -155,11 +169,9 @@ Make sure you have the following installed on your machine:
 ## Assumptions & Shortcuts
 
 1. **Validation Requirements**:
-   - Both **Title** and **Description** are mandatory fields. Creating or updating a task without either will trigger validation feedback on the UI and HTTP 400 validation errors on the backend API.
+   - **Title** is a mandatory field, while **Description** is optional. Creating or updating a task without a title will trigger validation feedback on the UI and HTTP 400 validation errors on the backend API.
    - Status values are strictly constrained to `"To Do"`, `"In Progress"`, and `"Done"`.
 
-2. **Offline-First Resilience**:
-   - If the backend server is stopped or unreachable, the frontend automatically falls back to browser `localStorage` to ensure zero runtime UI crashes during evaluation.
 
-3. **Single-User Scope**:
+2. **Single-User Scope**:
    - Designed as a clean single-user task management application without multi-user authentication for streamlined assessment.

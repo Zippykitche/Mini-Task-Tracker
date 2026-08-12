@@ -60,10 +60,10 @@ def validate_description(data, required=False):
 
     if description is not None:
         description = str(description).strip()
-        if not description:
+        if required and not description:
             return None, "Description is required."
 
-    return description, None
+    return description or "", None
 
 
 def validate_status(data):
@@ -95,7 +95,7 @@ def create_task():
         return jsonify({"error": "Request body must be a JSON object."}), 400
 
     title, title_error = validate_title(data, required=True)
-    description, description_error = validate_description(data, required=True)
+    description, description_error = validate_description(data, required=False)
     status, status_error = validate_status(data)
 
     if title_error:
@@ -109,7 +109,7 @@ def create_task():
 
     task = Task(
         title=title,
-        description=description,
+        description=description or "",
         status=status or TASK_STATUS_TO_DO,
     )
 

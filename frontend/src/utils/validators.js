@@ -6,8 +6,5 @@ export function validateTaskTitle(title) {
 }
 
 export function validateTaskDescription(description) {
-  if (!String(description || '').trim()) {
-    return 'Task description is required.';
-  }
   return '';
 }
